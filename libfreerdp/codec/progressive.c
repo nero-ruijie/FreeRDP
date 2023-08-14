@@ -835,6 +835,13 @@ static INLINE void progressive_rfx_dwt_2d_decode_block(INT16* buffer, INT16* tem
 	                       nBandL + nBandH);
 }
 
+static INLINE void progressive_rfx_dwt_2d_extrapolate_decode(INT16* buffer, INT16* temp )
+{
+	progressive_rfx_dwt_2d_decode_block(&buffer[3807], temp, 3);
+	progressive_rfx_dwt_2d_decode_block(&buffer[3007], temp, 2);
+	progressive_rfx_dwt_2d_decode_block(&buffer[0], temp, 1);
+}
+
 static INLINE int progressive_rfx_dwt_2d_decode(PROGRESSIVE_CONTEXT* progressive, INT16* buffer,
                                                 INT16* current, BOOL coeffDiff, BOOL extrapolate,
                                                 BOOL reverse)
@@ -862,9 +869,7 @@ static INLINE int progressive_rfx_dwt_2d_decode(PROGRESSIVE_CONTEXT* progressive
 	}
 	else
 	{
-		progressive_rfx_dwt_2d_decode_block(&buffer[3807], temp, 3);
-		progressive_rfx_dwt_2d_decode_block(&buffer[3007], temp, 2);
-		progressive_rfx_dwt_2d_decode_block(&buffer[0], temp, 1);
+		progressive->rfx_context->dwt_2d_extrapolate_decode(buffer, temp);
 	}
 	BufferPool_Return(progressive->bufferPool, temp);
 	return 1;
@@ -2810,6 +2815,8 @@ PROGRESSIVE_CONTEXT* progressive_context_new_ex(BOOL Compressor, UINT32 Threadin
 	progressive->rfx_context = rfx_context_new_ex(Compressor, ThreadingFlags);
 	if (!progressive->rfx_context)
 		goto fail;
+	if ( !progressive->rfx_context->dwt_2d_extrapolate_decode )
+		progressive->rfx_context->dwt_2d_extrapolate_decode = progressive_rfx_dwt_2d_extrapolate_decode;
 	progressive->buffer = Stream_New(NULL, 1024);
 	if (!progressive->buffer)
 		goto fail;
