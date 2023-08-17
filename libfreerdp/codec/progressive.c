@@ -835,7 +835,7 @@ static INLINE void progressive_rfx_dwt_2d_decode_block(INT16* buffer, INT16* tem
 	                       nBandL + nBandH);
 }
 
-static INLINE void progressive_rfx_dwt_2d_extrapolate_decode(INT16* buffer, INT16* temp )
+static INLINE void progressive_rfx_dwt_2d_extrapolate_decode(INT16* buffer, INT16* temp)
 {
 	progressive_rfx_dwt_2d_decode_block(&buffer[3807], temp, 3);
 	progressive_rfx_dwt_2d_decode_block(&buffer[3007], temp, 2);
@@ -1915,11 +1915,11 @@ static INLINE BOOL progressive_write_region(PROGRESSIVE_CONTEXT* progressive, wS
 	Stream_Write_UINT8(s, 64);                      /* tileSize (1 byte) */
 	Stream_Write_UINT16(s, msg->numRects);          /* numRects (2 bytes) */
 	WINPR_ASSERT(msg->numQuant <= UINT8_MAX);
-	Stream_Write_UINT8(s, (UINT8)msg->numQuant);    /* numQuant (1 byte) */
-	Stream_Write_UINT8(s, 0);                       /* numProgQuant (1 byte) */
-	Stream_Write_UINT8(s, 0);                       /* flags (1 byte) */
-	Stream_Write_UINT16(s, msg->numTiles);          /* numTiles (2 bytes) */
-	Stream_Write_UINT32(s, tilesDataSize);          /* tilesDataSize (4 bytes) */
+	Stream_Write_UINT8(s, (UINT8)msg->numQuant); /* numQuant (1 byte) */
+	Stream_Write_UINT8(s, 0);                    /* numProgQuant (1 byte) */
+	Stream_Write_UINT8(s, 0);                    /* flags (1 byte) */
+	Stream_Write_UINT16(s, msg->numTiles);       /* numTiles (2 bytes) */
+	Stream_Write_UINT32(s, tilesDataSize);       /* tilesDataSize (4 bytes) */
 
 	for (UINT16 i = 0; i < msg->numRects; i++)
 	{
@@ -2815,8 +2815,9 @@ PROGRESSIVE_CONTEXT* progressive_context_new_ex(BOOL Compressor, UINT32 Threadin
 	progressive->rfx_context = rfx_context_new_ex(Compressor, ThreadingFlags);
 	if (!progressive->rfx_context)
 		goto fail;
-	if ( !progressive->rfx_context->dwt_2d_extrapolate_decode )
-		progressive->rfx_context->dwt_2d_extrapolate_decode = progressive_rfx_dwt_2d_extrapolate_decode;
+	if (!progressive->rfx_context->dwt_2d_extrapolate_decode)
+		progressive->rfx_context->dwt_2d_extrapolate_decode =
+		    progressive_rfx_dwt_2d_extrapolate_decode;
 	progressive->buffer = Stream_New(NULL, 1024);
 	if (!progressive->buffer)
 		goto fail;
